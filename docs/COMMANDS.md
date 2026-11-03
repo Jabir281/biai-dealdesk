@@ -37,6 +37,13 @@ npm.cmd run lint
 node --test tests/leads.test.mjs
 ```
 
+Run both the Lead Register and Data Health suites:
+```powershell
+node --test tests/leads.test.mjs tests/health.test.mjs
+```
+
+Data Health verification on 2026-11-03: all 18 tests passed (7 existing, 11 new). New coverage includes duplicate pairs/normalization, missing contact fields, date order, explicit note evidence and negative cases, unique-ID counting, and frozen-input immutability.
+
 Verified on 2026-11-03 with Node 22.18.0: 7 passing tests, including the exact source and overdue IDs, CSV quoting/empty fields, duplicate retention and combined filters. `npm.cmd run build` and `npm.cmd run lint` also pass after removal of the unused generated JSX `.js` files.
 
 ## Git checks (only if a Git repository has been initialized)

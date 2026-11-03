@@ -1,0 +1,58 @@
+.view-nav { display: flex; gap: 8px; margin-bottom: 26px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.view-nav button { color: var(--muted); border-color: transparent; background: transparent; font-size: 14px; min-height: 44px; }
+.view-nav button:hover { background: #e6efee; color: var(--teal); }
+.view-nav button[aria-current='page'] { color: var(--teal); border-color: #a4c6c4; background: #eaf5f3; }
+.health-view { font-size: 14px; line-height: 1.6; }
+.health-totals { display: flex; align-items: baseline; gap: 20px 32px; flex-wrap: wrap; margin-bottom: 18px; }
+.health-totals strong { font-size: 23px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.health-totals p:last-child { color: var(--muted); }
+.health-rules { margin-bottom: 24px; max-width: 90ch; }
+.health-rules summary { color: var(--teal); width: fit-content; font-weight: 600; }
+.health-rules ul { padding-left: 20px; color: var(--muted); }
+.health-rules li + li { margin-top: 8px; }
+.health-rules p { color: var(--muted); }
+.health-panel { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.health-toolbar { display: flex; gap: 24px; align-items: flex-end; padding: 20px 24px; }
+.health-toolbar label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.health-toolbar select { min-height: 44px; width: 290px; max-width: 100%; padding: 8px 12px; background: white; color: var(--navy); border: 1px solid #788b9a; }
+.health-results { padding: 12px 24px; background: #f7f9fa; border-block: 1px solid var(--border); color: var(--muted); font-size: 13px; }
+.health-issues { list-style: none; padding: 0; margin: 0; }
+.health-issue { padding: 24px; overflow-wrap: anywhere; }
+.health-issue + .health-issue { border-top: 1px solid var(--border); }
+.health-issue-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px 24px; }
+.health-category { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.health-issue h2 { font-size: 19px; font-weight: 600; line-height: 1.4; }
+.health-badges { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; align-items: center; }
+.health-severity, .health-certainty { font-size: 13px; padding: 3px 8px; border-radius: 4px; white-space: nowrap; }
+.health-severity-high { color: var(--overdue); background: #fceee9; }
+.health-severity-medium { color: #855323; background: #fbf3e3; }
+.health-severity-low { color: var(--teal); background: #eaf5f3; }
+.health-certainty { color: var(--muted); background: #edf2f6; }
+.health-leads { font-weight: 600; margin: 10px 0 16px; }
+.health-explanation { display: grid; grid-template-columns: 1.35fr 1fr; gap: 24px; margin-bottom: 18px; }
+.health-explanation h3 { font-size: 13px; margin: 0 0 6px; font-weight: 600; }
+.health-explanation ul { padding-left: 18px; margin: 0; }
+.health-explanation li + li { margin-top: 6px; }
+.health-explanation p, .health-explanation ul { color: var(--muted); max-width: 76ch; }
+.health-source { border-top: 1px solid #e6ecf0; padding-top: 12px; margin-top: 12px; }
+.health-source summary { color: var(--teal); font-weight: 600; width: fit-content; }
+.health-source dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 24px; margin: 16px 0 0; padding: 18px; background: #f7f9fa; border-radius: 6px; }
+.health-source dt { color: var(--muted); font-size: 13px; }
+.health-source dd { margin: 3px 0 0; white-space: pre-wrap; }
+.health-source-notes { grid-column: 1 / -1; }
+.health-footnote { margin-top: 18px; max-width: 85ch; color: var(--muted); font-size: 13px; }
+@media (max-width: 850px) {
+  .health-issue-heading { flex-direction: column; }
+  .health-explanation { grid-template-columns: 1fr; gap: 16px; }
+  .health-source dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 540px) {
+  .health-totals { gap: 6px 20px; }
+  .health-totals p:last-child { flex-basis: 100%; }
+  .health-toolbar { padding: 18px; flex-wrap: wrap; gap: 8px; }
+  .health-toolbar > div, .health-toolbar select { width: 100%; }
+  .health-toolbar select { font-size: 16px; }
+  .health-results, .health-issue { padding: 18px; }
+  .health-source dl { grid-template-columns: 1fr; padding: 14px; }
+  .health-issue h2 { font-size: 18px; }
+}

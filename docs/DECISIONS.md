@@ -1,5 +1,12 @@
 # Decisions and Open Questions
 
+## Task 009 — Vercel import packaging, 2026-11-05
+
+- Fix the production `.js` entrypoint importing an absent `.ts` dependency by placing NodeNext module settings and `rewriteRelativeImportExtensions: true` in the root TypeScript config Vercel reads. Retain project references for local type checking; Vercel does not follow them.
+- Keep Vercel's standard Node builder and existing five entrypoints. Trace/emit shared modules as JavaScript; explicitly include the unchanged CSV for all five via `api/**/*.ts`. Adding files alone is not the runtime-format fix.
+- Add dependency-closure checks and isolated JavaScript-only execution of all five emitted artifacts to tests/build. Native TypeScript stripping is disabled; provider fetch is mocked and no real environment secrets are inherited. No new dependency or tracked generated server copies.
+- 77 tests, build, lint, client-secret scan and all five runtime checks passed. Hosted Vercel builder/launcher remains unverified: no CLI/account access, commit, push, deployment or live Gemini request. Authentication/business logic/frontend unchanged. See [Task 009 report](TASK-009-VERCEL-PACKAGING.md).
+
 ## Task 008 — Reviewer login, 2026-11-05
 
 - Add shared reviewer login with server-only `BIAI_REVIEWER_PASSWORD` and `BIAI_SESSION_SECRET`; weak/missing settings fail closed. Preserve trusted bearer support and actual-loopback development trust. No production unauthenticated fallback.

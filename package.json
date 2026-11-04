@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/check-server-imports.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "node --test tests/*.test.mjs",
+    "check:server": "node scripts/check-server-imports.mjs",
     "smoke:ai": "node scripts/smoke-draft.mjs --live-once",
     "smoke:query": "node scripts/smoke-query.mjs --live-once"
   },

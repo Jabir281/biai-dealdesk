@@ -1,5 +1,9 @@
 # Gemini draft backend
 
+## Production packaging — Task 009
+
+The root TypeScript configuration now rewrites relative `.ts` imports to `.js` for Vercel emission. The `api/**/*.ts` function rule explicitly includes the original CSV for all five functions. Build runs an isolated JavaScript-only runtime check with mocked Gemini; shared handlers and request formats are unchanged. See [root cause, packaging details and verification](TASK-009-VERCEL-PACKAGING.md). Actual hosted deployment was not performed by this task.
+
 ## Current reviewer access — Task 008, 2026-11-05
 
 Both production AI endpoints now accept a verified reviewer session as well as the existing trusted bearer token. The browser confirms session status before unlocking either view; sign-out/expiry locks both. Local loopback behavior is preserved. Configure server-only `BIAI_REVIEWER_PASSWORD` and `BIAI_SESSION_SECRET` following [Reviewer access and Vercel setup](REVIEWER-ACCESS.md). This supersedes the older dated frontend access restrictions below. Task 008 made no live Gemini request and did not retest provider availability.

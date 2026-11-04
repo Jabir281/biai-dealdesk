@@ -1,6 +1,10 @@
 ﻿.app-header { background: var(--navy); color: white; border-bottom: 3px solid var(--teal); }
 .header-inner { max-width: 1536px; margin: auto; padding: 20px 40px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .brand { display: flex; align-items: center; gap: 14px; font-size: 21px; font-weight: 600; }
+.view-nav { flex-wrap: wrap; }
+@media (max-width: 540px) {
+  .view-nav button { padding-inline: 10px; }
+}
 .brand-mark { font-size: 16px; font-weight: 750; border-right: 1px solid #61768a; padding-right: 14px; }
 .sample-label { display: flex; align-items: center; gap: 8px; color: #e1eaf0; font-size: 13px; }
 .sample-label > span { width: 6px; height: 6px; border-radius: 50%; background: #88c8be; }

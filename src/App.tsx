@@ -4,6 +4,7 @@ import { duplicateIds, filterLeads, formatDate, formatDealValue, isOverdue, pars
 import type { Lead, Stage } from './data/leads'
 import { auditLeads } from './data/health'
 import DataHealth from './DataHealth'
+import AiFollowUp from './AiFollowUp'
 import './App.css'
 
 function loadSource(): { leads: Lead[]; error: string | null } {
@@ -51,10 +52,11 @@ function LeadRow({ lead }: { lead: Lead }) {
 }
 
 function App() {
-  const [view, setView] = useState<'register' | 'health'>('register')
+  const [view, setView] = useState<'register' | 'health' | 'followup'>('register')
+  const viewTitle = view === 'register' ? 'Lead register' : view === 'health' ? 'Data health' : 'AI Follow-up'
   useEffect(() => {
-    document.title = `${view === 'register' ? 'Lead register' : 'Data health'} | BIAI DealDesk`
-  }, [view])
+    document.title = `${viewTitle} | BIAI DealDesk`
+  }, [viewTitle])
   const [search, setSearch] = useState('')
   const [stage, setStage] = useState<Stage | 'All stages'>('All stages')
   const [overdueOnly, setOverdueOnly] = useState(false)
@@ -64,7 +66,7 @@ function App() {
 
   return (
     <>
-      <a className="skip-link" href="#register">Skip to {view === 'register' ? 'lead register' : 'data health'}</a>
+      <a className="skip-link" href="#register">Skip to {viewTitle}</a>
       <header className="app-header"><div className="header-inner">
         <div className="brand"><span className="brand-mark">BIAI</span><span>DealDesk</span></div>
         <span className="sample-label"><span aria-hidden="true" />Fictional sample data</span>
@@ -73,14 +75,16 @@ function App() {
         <nav className="view-nav" aria-label="Main navigation">
           <button type="button" aria-current={view === 'register' ? 'page' : undefined} onClick={() => setView('register')}>Lead register</button>
           <button type="button" aria-current={view === 'health' ? 'page' : undefined} onClick={() => setView('health')}>Data health</button>
+          <button type="button" aria-current={view === 'followup' ? 'page' : undefined} onClick={() => setView('followup')}>AI Follow-up</button>
         </nav>
         <section className="page-heading" aria-labelledby="page-title">
-          <div><h1 id="page-title">{view === 'register' ? 'Lead register' : 'Data health'}</h1><p>{view === 'register' ? 'Corporate training opportunities, from first contact to close.' : 'Review data issues with evidence from the original records.'}</p></div>
+          <div><h1 id="page-title">{viewTitle}</h1><p>{view === 'register' ? 'Corporate training opportunities, from first contact to close.' : view === 'health' ? 'Review data issues with evidence from the original records.' : 'A thoughtful next message, grounded in your lead’s notes.'}</p></div>
           <div className="reference-date"><span>Follow-up reference date</span><strong><time dateTime={REFERENCE_DATE}>{formatDate(REFERENCE_DATE)}</time></strong></div>
         </section>
+        {!source.error && <div hidden={view !== 'followup'}><AiFollowUp leads={source.leads} issues={healthIssues} /></div>}
         {source.error ? (
           <section className="error-state" role="alert"><h2>Lead data could not be loaded</h2><p>{source.error}</p><p>Check the bundled corporate-leads.csv against the original source, then reload.</p></section>
-        ) : view === 'health' ? <DataHealth leads={source.leads} issues={healthIssues} /> : (
+        ) : view === 'followup' ? null : view === 'health' ? <DataHealth leads={source.leads} issues={healthIssues} /> : (
           <>
             <div className="register-summary">
               <p><strong>{source.leads.length}</strong> source leads <span className="summary-divider" aria-hidden="true" /> <strong className="overdue-total">{overdueCount}</strong> overdue follow-ups</p>

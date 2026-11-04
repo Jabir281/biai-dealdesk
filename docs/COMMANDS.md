@@ -53,6 +53,16 @@ Verified on 2026-11-03 with Node 22.18.0: 7 passing tests, including the exact s
 `npm.cmd run smoke:ai` explicitly initiates one real L04 request; do not include it in routine validation or retries.
 See [AI-BACKEND.md](AI-BACKEND.md) for request format, configuration, limits and deployment protection.
 
+## AI Follow-up frontend checks
+
+`npm.cmd test` includes the browser request-client tests using mocked fetch; it never runs live generation.
+
+With the existing Vite app running at `http://localhost:5173/`, use Playwright MCP `browser_run_code_unsafe` with `filename: "D:/BIAI/app/tests/browser/ai-follow-up.playwright.js"`. The script intercepts every draft request, tests desktop/mobile interactions and writes screenshots. It does not need a Playwright package installed in the app. Close the automated browser page afterwards to discard its mock routes.
+
+To verify the production access blocker, run `npm.cmd run build`, then `npm.cmd run preview -- --host 127.0.0.1 --port 5174 --strictPort`, and run the MCP script `tests/browser/ai-follow-up-production.playwright.js`. Stop that temporary preview when finished. The production UI must make no draft requests.
+
+See [AI Follow-up verification](../reports/ai-follow-up-verification.md). Do not run `smoke:ai` as part of frontend testing while live generation is blocked.
+
 ## Git checks (only if a Git repository has been initialized)
 ```powershell
 git status --short

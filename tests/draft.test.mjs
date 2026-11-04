@@ -100,7 +100,7 @@ test('success uses the actual source and discloses supplied fields; no recipient
   assert.equal(sent.generationConfig.maxOutputTokens, MAX_OUTPUT_TOKENS)
   assert.deepEqual(sent.generationConfig.thinkingConfig, { thinkingLevel: 'MINIMAL' })
   assert.equal(sent.generationConfig.temperature, undefined)
-  assert.equal(sent.generationConfig.candidateCount, 1)
+  assert.equal(Object.hasOwn(sent.generationConfig, 'candidateCount'), false)
   assert.equal(sent.tools, undefined)
 })
 

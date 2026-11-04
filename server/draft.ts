@@ -209,7 +209,7 @@ export function createDraftHandler(options: DraftOptions = {}) {
           systemInstruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
           contents: [{ role: 'user', parts: [{ text: `UNTRUSTED_SOURCE_DATA_JSON:\n${JSON.stringify(context)}` }] }],
           generationConfig: {
-            candidateCount: 1, maxOutputTokens: MAX_OUTPUT_TOKENS,
+            maxOutputTokens: MAX_OUTPUT_TOKENS,
             ...(model === 'gemini-2.5-flash'
               ? { temperature: 0.2, thinkingConfig: { thinkingBudget: 0 } }
               : { thinkingConfig: { thinkingLevel: 'MINIMAL' } }),

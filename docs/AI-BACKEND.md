@@ -1,5 +1,9 @@
 # Gemini draft backend
 
+## Current reviewer access — Task 008, 2026-11-05
+
+Both production AI endpoints now accept a verified reviewer session as well as the existing trusted bearer token. The browser confirms session status before unlocking either view; sign-out/expiry locks both. Local loopback behavior is preserved. Configure server-only `BIAI_REVIEWER_PASSWORD` and `BIAI_SESSION_SECRET` following [Reviewer access and Vercel setup](REVIEWER-ACCESS.md). This supersedes the older dated frontend access restrictions below. Task 008 made no live Gemini request and did not retest provider availability.
+
 ## Ask Your Pipeline addition — 2026-11-04
 
 The separate `/api/ai/query` route reuses model configuration, safe response helpers, authorization and the local adapter. Email generation behavior is unchanged. See [AI-QUERY.md](AI-QUERY.md) for the typed query plan, deterministic executor, limits and access requirements. Production query access uses the same server-held `AI_DRAFT_ACCESS_TOKEN`; the browser never receives it and production Ask remains disabled.
@@ -94,11 +98,11 @@ Errors are JSON: `{"error":{"code":"...","message":"..."}}`. Responses are `no-s
 
 ## Deployment protection and limits
 
-Production requires **both** `GEMINI_API_KEY` and a separate, randomly generated `AI_DRAFT_ACCESS_TOKEN` of 32–256 characters. Send the latter as `Authorization: Bearer ...` from a trusted caller. Missing protection makes the function return 503; a missing/wrong caller token returns 401 before provider spending. Never use the Gemini key as the access token.
+Production requires `GEMINI_API_KEY` and at least one valid authorization configuration: reviewer password/signing secret for browser sessions, or the existing separate random `AI_DRAFT_ACCESS_TOKEN` of 32–256 characters for trusted server/CLI callers. The browser uses a signed HttpOnly cookie, never a bearer token. Cookie requests require exact same-origin checks; missing/invalid authorization never reaches Gemini. Missing protection fails closed. Never reuse the Gemini key as an authentication credential.
 
 The shared handler permits one generation in flight and at most 5 attempts/minute and 30 attempts/hour **per instance**, counting failed provider attempts too. These in-memory limits reset on process restart/cold start and are not shared between serverless instances. They are not a distributed spend cap.
 
-Do not put the access token in Vite environment variables, browser source, URLs or localStorage. This backend-only demo can be called by a trusted CLI/server. Before a public browser integration, add authenticated server-side sessions or a protected server intermediary, Vercel deployment/firewall rate protection (or a shared rate-limit store), and provider quotas/budget monitoring. Do not deploy an unauthenticated public AI endpoint. This task does not deploy the function or implement browser authentication.
+Do not put any server credential in Vite environment variables, browser source, URLs or localStorage. Reviewer sessions now provide browser authorization. Platform/distributed rate protection and provider quotas/budget monitoring are still needed; in-memory limits are not global spending caps. See [Reviewer access](REVIEWER-ACCESS.md) for cookie lifetime, CSRF protection, rotation and logout limitations. Task 008 does not deploy the function.
 
 ## Verification
 

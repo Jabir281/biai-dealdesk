@@ -1,0 +1,21 @@
+.reviewer-access { margin-bottom: 26px; padding: 18px 20px; border: 1px solid #b6cdcc; border-left: 3px solid var(--teal); border-radius: 6px; background: #f6fbfa; }
+.reviewer-bar { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.reviewer-bar strong { font-size: 15px; }
+.reviewer-bar p, .reviewer-form p { color: var(--muted); font-size: 14px; line-height: 1.5; margin-top: 5px; max-width: 75ch; }
+.reviewer-bar button { flex-shrink: 0; }
+.reviewer-form { display: flex; align-items: flex-start; gap: 14px; padding-top: 18px; margin-top: 16px; border-top: 1px solid #c8d9d8; }
+.reviewer-form > div { width: min(100%, 480px); }
+.reviewer-form label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 7px; }
+.reviewer-form input { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #788b9a; background: white; color: var(--navy); }
+.reviewer-form > button { margin-top: 25px; min-height: 44px; }
+.reviewer-access .reviewer-secondary { background: white; color: var(--teal); }
+.reviewer-access .reviewer-secondary:hover:not(:disabled) { background: #eaf4f2; }
+.reviewer-access button:disabled { opacity: .6; }
+.reviewer-status:not(:empty) { margin-top: 12px; color: var(--teal); font-size: 14px; line-height: 1.5; }
+.reviewer-error { margin-top: 12px; color: #963922; font-size: 14px; line-height: 1.5; }
+.reviewer-error button { margin-top: 10px; }
+@media (max-width: 600px) {
+  .reviewer-access { padding: 16px; }
+  .reviewer-bar, .reviewer-form { align-items: stretch; flex-direction: column; gap: 12px; }
+  .reviewer-form > button { margin-top: 0; }
+}

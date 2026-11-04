@@ -13,7 +13,8 @@ const messages: Record<string, string> = {
   AI_NOT_CONFIGURED: 'Gemini interpretation is not configured. Ask the app owner to configure the server.',
   MODEL_NOT_CONFIGURED: 'The server model setting is unsupported. Contact the app owner.',
   ACCESS_NOT_CONFIGURED: 'Secure browser access is not configured. Use the local development app.',
-  UNAUTHORIZED: 'This deployment does not authorize browser queries. Use the local development app.',
+  UNAUTHORIZED: 'Your reviewer session ended. Sign in again to ask a question.',
+  ORIGIN_REJECTED: 'Open DealDesk directly on its own site to ask a question.',
   LOCAL_ACCESS_ONLY: 'Queries are available through the local development app on this computer.',
   PROVIDER_ACCESS_DENIED: 'Gemini access was denied. Ask the app owner to check provider access.',
   INVALID_REQUEST: 'Enter a question of up to 800 characters.',
@@ -22,7 +23,8 @@ const messages: Record<string, string> = {
   INVALID_RESPONSE: 'The query service returned an unusable response. No answer can be shown.',
 }
 export class QueryRequestError extends Error {
-  constructor(code: string) { super(Object.hasOwn(messages, code) ? messages[code] : 'The question could not be completed. Contact the app owner if this continues.') }
+  readonly code: string
+  constructor(code: string) { super(Object.hasOwn(messages, code) ? messages[code] : 'The question could not be completed. Contact the app owner if this continues.'); this.code = code }
 }
 function object(value: unknown): value is Record<string, unknown> { return typeof value === 'object' && value !== null && !Array.isArray(value) }
 const strings = (value: unknown): value is string[] => Array.isArray(value) && value.every(item => typeof item === 'string')

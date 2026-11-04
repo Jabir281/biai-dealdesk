@@ -1,5 +1,9 @@
 # Ask Your Pipeline
 
+## Current access — Task 008, 2026-11-05
+
+Production Ask now unlocks after reviewer session status is confirmed, alongside AI Follow-up. The query request format, Gemini schema and deterministic executor are unchanged. Server-only reviewer configuration, signed HttpOnly cookies, CSRF rules and deployment steps are documented in [Reviewer access](REVIEWER-ACCESS.md). No live provider request was made during Task 008; the earlier smoke-test failure below is a historical result, not a new test of the user's working integration.
+
 Implemented 2026-11-04. **Live interpretation is blocked:** the one authorized live test returned upstream HTTP 400, exposed safely as `502 PROVIDER_REQUEST_REJECTED`. No retry was made. Mocked verification is not evidence of working live interpretation. See [verification](../reports/query-verification.md).
 
 ## Architecture and contract
@@ -40,11 +44,11 @@ Every result explains its criteria and includes supporting IDs. List limits affe
 
 ## Access, spending and failure handling
 
-Local development preserves the existing actual-loopback socket, Host, Origin and request-site restrictions. Browser requests carry only the question, without key or bearer token. Production requires the existing separate `AI_DRAFT_ACCESS_TOKEN` and fails closed when it is absent or invalid. Production UI disables Ask and explains that secure browser access is not configured. The UI check is not authentication.
+Local development preserves the existing actual-loopback socket, Host, Origin and request-site restrictions. Browser request bodies carry only the question, without key or bearer token. Production accepts a valid reviewer session cookie or the existing separate trusted `AI_DRAFT_ACCESS_TOKEN` and fails closed without valid authorization. The production UI enables Ask only after a confirmed reviewer session. The server verifies the cookie, expiry and exact same origin on each request; the UI check is not authentication.
 
 Limits: 800 question characters, 4096 request bytes, three-second body deadline, 20-second provider deadline, 25-second browser deadline, 1536 output tokens, 32 KiB provider response, one in-flight interpretation, five attempts/minute and 30/hour per handler instance. Failed provider attempts count. There are no retries, redirects, external tools or unsupported `candidateCount` parameters. Provider output is checked for truncation, model mismatch, malformed plans and current-secret echoes. Raw provider bodies and internal secrets are never returned or logged.
 
-Query and email limits are independent and in memory. They reset on restart and do not aggregate across Vercel instances. Public use still requires authenticated sessions or a protected server intermediary, distributed abuse controls and provider budget/quota monitoring. No deployment or authentication weakening was performed.
+Query and email limits are independent and in memory. They reset on restart and do not aggregate across Vercel instances. Reviewer sessions now provide browser authentication; distributed abuse controls and provider budget/quota monitoring are still needed. No deployment or authentication weakening was performed.
 
 Provider HTTP 400 maps to `PROVIDER_REQUEST_REJECTED`; 404 to `MODEL_UNAVAILABLE`; 429 to `PROVIDER_QUOTA_EXCEEDED`; invalid model output to `INVALID_QUERY_PLAN`; deadline expiry to `PROVIDER_TIMEOUT`. Other existing safe configuration/access/provider errors remain available. No failure is replaced with fabricated results.
 

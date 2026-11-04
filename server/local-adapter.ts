@@ -2,7 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { Readable } from 'node:stream'
 import { jsonResponse } from './draft.ts'
 
-export function createLocalMiddleware(handler: (request: Request) => Promise<Response>, pathname: '/api/ai/draft' | '/api/ai/query' = '/api/ai/draft') {
+export function createLocalMiddleware(handler: (request: Request) => Promise<Response>, pathname: '/api/ai/draft' | '/api/ai/query' | '/api/auth/login' | '/api/auth/session' | '/api/auth/logout' = '/api/ai/draft') {
   return async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
     if ((req.url ?? '').split('?')[0] !== pathname) return next()
     const controller = new AbortController()

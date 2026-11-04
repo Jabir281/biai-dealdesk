@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { canDraftLocally } from './ai/draft-client'
 import { QueryRequestError, requestQuery } from './ai/query-client'
 import type { QueryAnswer, QueryResponse } from './ai/query-contract'
 import { formatDate, formatDealValue, STAGES } from './data/leads'
@@ -31,14 +30,13 @@ function Answer({ result }: { result: QueryAnswer }) {
   </>
 }
 
-export default function AskPipeline() {
+export default function AskPipeline({ available, onUnauthorized }: { available: boolean; onUnauthorized: () => void }) {
   const [question, setQuestion] = useState('')
   const [pending, setPending] = useState(false)
   const [result, setResult] = useState<QueryResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const request = useRef<AbortController | null>(null)
   const input = useRef<HTMLTextAreaElement | null>(null)
-  const available = canDraftLocally(import.meta.env.DEV, window.location.hostname)
   useEffect(() => () => { request.current?.abort() }, [])
 
   async function ask() {
@@ -50,6 +48,7 @@ export default function AskPipeline() {
       const response = await requestQuery(question, { signal: controller.signal })
       if (!controller.signal.aborted) setResult(response)
     } catch (failure) {
+      if (failure instanceof QueryRequestError && failure.code === 'UNAUTHORIZED') onUnauthorized()
       if (!controller.signal.aborted) setError(failure instanceof QueryRequestError ? failure.message : 'The question could not be completed. Try again later.')
     } finally {
       if (request.current === controller) { request.current = null; setPending(false) }
@@ -58,7 +57,7 @@ export default function AskPipeline() {
 
   return <div className="query-view">
     <p className="query-method">Gemini interprets your question. TypeScript calculates the answer from the 25 original leads and their Data Health results.</p>
-    {!available && <div className="query-warning" role="note"><strong>Questions are unavailable in this deployment.</strong><p>Secure browser access is not configured. Use the local development app; no credentials should be entered here.</p></div>}
+    {!available && <div className="query-warning" role="note"><strong>Sign in to ask your pipeline.</strong><p>Use Reviewer access above to unlock questions and AI Follow-up.</p></div>}
     <form className="query-form" onSubmit={event => { event.preventDefault(); void ask() }} aria-label="Ask about the pipeline">
       <label htmlFor="pipeline-question">Your question</label>
       <textarea ref={input} id="pipeline-question" rows={3} maxLength={800} value={question} disabled={pending} placeholder="Ask about leads, follow-ups, stages, values or data issues…" onChange={event => setQuestion(event.target.value)} aria-describedby="question-help question-length" />

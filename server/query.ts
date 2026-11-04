@@ -3,6 +3,7 @@ import { loadSourceLeads } from './source-leads.ts'
 import { QUERY_PLAN_SCHEMA, validateQueryPlan, InvalidQueryPlan } from './query-plan.ts'
 import { executeQueryPlan } from './query-engine.ts'
 import type { Lead } from '../src/data/leads.ts'
+import type { ReviewerOptions } from './reviewer-session.ts'
 
 export const MAX_QUESTION_LENGTH = 800
 export const QUERY_OUTPUT_TOKENS = 1536
@@ -17,7 +18,7 @@ operation list requires measure leads, groupBy none, sortBy a record field. oper
 Every question is independent: no conversational history is provided. References like 'those' without a specified set must clarify. Ambiguous ranking words such as best/stuck/priority need an explicit criterion. Do not infer agreed deal value means collected revenue.
 Return only the complete schema. For query use reason none. For clarify use reason ambiguous_question. For unsupported use unavailable_data, unsupported_operation or unsafe_request. All non-query responses MUST use neutral fields: operation count, measure leads, filters [], groupBy none, sortBy id, direction asc, limit 25. No explanation prose or final answer/numeric totals may be added.`
 
-interface QueryOptions {
+interface QueryOptions extends ReviewerOptions {
   apiKey?: string; model?: string; accessToken?: string; local?: boolean
   fetchImpl?: typeof fetch; loadLeads?: () => readonly Readonly<Lead>[]
   now?: () => number; timeoutMs?: number; bodyTimeoutMs?: number
@@ -91,7 +92,7 @@ export function createQueryHandler(options: QueryOptions = {}) {
       const parts: unknown[] = candidate.content.parts
       if (parts.some(part => !object(part) || typeof part.text !== 'string' || part.thought === true)) throw new InvalidQueryPlan()
       const text = parts.map(part => (part as { text: string }).text).join('')
-      if ([options.apiKey, options.accessToken].some(secret => secret && text.includes(secret))) throw new InvalidQueryPlan()
+      if ([options.apiKey, options.accessToken, options.reviewerPassword, options.sessionSecret].some(secret => secret && text.includes(secret))) throw new InvalidQueryPlan()
       let rawPlan: unknown
       try { rawPlan = JSON.parse(text) } catch { throw new InvalidQueryPlan() }
       const plan = validateQueryPlan(rawPlan)

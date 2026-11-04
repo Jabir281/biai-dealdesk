@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import type { Lead } from './data/leads'
 import { STAGES } from './data/leads'
 import type { HealthIssue } from './data/health'
-import { canDraftLocally, DraftRequestError, formatEmail, requestDraft, SOURCE_FIELD_LABELS } from './ai/draft-client'
+import { DraftRequestError, formatEmail, requestDraft, SOURCE_FIELD_LABELS } from './ai/draft-client'
 import type { EmailDraft } from './ai/draft-client'
 import './AiFollowUp.css'
 
 interface EditableDraft extends EmailDraft { edited: boolean }
 
-export default function AiFollowUp({ leads, issues }: { leads: Lead[]; issues: HealthIssue[] }) {
+export default function AiFollowUp({ leads, issues, available, onUnauthorized }: { leads: Lead[]; issues: HealthIssue[]; available: boolean; onUnauthorized: () => void }) {
   const [selectedId, setSelectedId] = useState('')
   const [drafts, setDrafts] = useState<Record<string, EditableDraft>>({})
   const [pending, setPending] = useState(false)
@@ -20,7 +20,6 @@ export default function AiFollowUp({ leads, issues }: { leads: Lead[]; issues: H
   const lead = leads.find((item) => item.id === selectedId)
   const draft = drafts[selectedId]
   const flagged = issues.filter((issue) => issue.leadIds.includes(selectedId))
-  const available = canDraftLocally(import.meta.env.DEV, window.location.hostname)
 
   useEffect(() => () => { request.current?.abort(); copyAttempt.current++ }, [])
 
@@ -41,6 +40,7 @@ export default function AiFollowUp({ leads, issues }: { leads: Lead[]; issues: H
       const result = await requestDraft(lead.id, { signal: controller.signal })
       if (!controller.signal.aborted) setDrafts((previous) => ({ ...previous, [lead.id]: { ...result, edited: false } }))
     } catch (failure) {
+      if (failure instanceof DraftRequestError && failure.code === 'UNAUTHORIZED') onUnauthorized()
       if (!controller.signal.aborted) setError(failure instanceof DraftRequestError ? failure.message : 'The draft request could not be completed. Try again later.')
     } finally {
       if (request.current === controller) { request.current = null; setPending(false) }
@@ -68,7 +68,7 @@ export default function AiFollowUp({ leads, issues }: { leads: Lead[]; issues: H
   return (
     <div className="followup-view">
       <p className="followup-intro">Draft from the original lead context, then review and edit. Nothing is sent.</p>
-      {!available && <div className="followup-notice" role="note"><strong>Draft generation is unavailable here.</strong><p>Secure browser access is not configured for this deployment. Use the local development app to generate a draft.</p></div>}
+      {!available && <div className="followup-notice" role="note"><strong>Sign in to generate a draft.</strong><p>Use Reviewer access above. You can review all original lead context without signing in.</p></div>}
       <div className="followup-workspace">
         <section className="followup-context" aria-labelledby="context-heading">
           <div className="followup-section-heading"><h2 id="context-heading">Lead context</h2><span>{leads.length} original leads</span></div>

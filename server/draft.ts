@@ -1,4 +1,6 @@
 import { timingSafeEqual } from 'node:crypto'
+import { reviewerConfigured, sameOrigin, sessionExpiry } from './reviewer-session.ts'
+import type { ReviewerOptions } from './reviewer-session.ts'
 import type { Lead } from '../src/data/leads.ts'
 import { loadSourceLeads } from './source-leads.ts'
 
@@ -30,7 +32,7 @@ export interface DraftResponse {
   draftOnly: true
 }
 
-interface DraftOptions {
+interface DraftOptions extends ReviewerOptions {
   apiKey?: string
   model?: string
   accessToken?: string
@@ -112,12 +114,21 @@ export function authorize(request: Request, options: DraftOptions): Response | u
     return
   }
   const token = options.accessToken
-  if (!token || token.length < 32 || token.length > 256 || token === options.apiKey) {
+  const bearerConfigured = !!token && token.length >= 32 && token.length <= 256 && token !== options.apiKey
+  if (!bearerConfigured && !reviewerConfigured(options)) {
     return errorResponse(503, 'ACCESS_NOT_CONFIGURED', 'Draft access protection is not configured.')
   }
+  if (!request.headers.has('authorization')) {
+    if (!request.headers.has('cookie')) return errorResponse(401, 'UNAUTHORIZED', 'Sign in to use the AI features.')
+    if (!sameOrigin(request)) return errorResponse(403, 'ORIGIN_REJECTED', 'AI requests must come from this site.')
+    if (sessionExpiry(request, options) !== null) return
+    return errorResponse(401, 'UNAUTHORIZED', 'Sign in to use the AI features.')
+  }
+  // Trusted CLI/server callers may omit Origin; browser callers may not use a foreign origin.
+  if ((request.headers.has('origin') || request.headers.has('sec-fetch-site')) && !sameOrigin(request, false, false)) return errorResponse(403, 'ORIGIN_REJECTED', 'AI requests must come from this site.')
   const expected = Buffer.from(`Bearer ${token}`)
   const supplied = Buffer.from(request.headers.get('authorization') ?? '')
-  if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) {
+  if (!bearerConfigured || supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) {
     return errorResponse(401, 'UNAUTHORIZED', 'Draft access authorization is required.')
   }
 }
@@ -234,7 +245,7 @@ export function createDraftHandler(options: DraftOptions = {}) {
         if (signal.aborted) throw new Error('Aborted')
         return errorResponse(502, 'INVALID_PROVIDER_RESPONSE', 'The provider response was invalid or exceeded the size limit.')
       }
-      const draft = extractDraft(value, model, [options.apiKey, options.accessToken ?? ''])
+      const draft = extractDraft(value, model, [options.apiKey, options.accessToken ?? '', options.reviewerPassword ?? '', options.sessionSecret ?? ''])
       const result: DraftResponse = { ...draft, leadId: lead.id, sourceFields: Object.keys(context), model, draftOnly: true }
       return jsonResponse(200, result)
     } catch (error) {

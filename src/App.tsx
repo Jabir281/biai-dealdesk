@@ -6,6 +6,8 @@ import { auditLeads } from './data/health'
 import DataHealth from './DataHealth'
 import AiFollowUp from './AiFollowUp'
 import AskPipeline from './AskPipeline'
+import ReviewerAccess from './ReviewerAccess'
+import { useReviewerSession } from './auth/useReviewerSession'
 import './App.css'
 
 function loadSource(): { leads: Lead[]; error: string | null } {
@@ -53,6 +55,7 @@ function LeadRow({ lead }: { lead: Lead }) {
 }
 
 function App() {
+  const access = useReviewerSession()
   const [view, setView] = useState<'register' | 'health' | 'followup' | 'query'>('register')
   const viewTitle = view === 'register' ? 'Lead register' : view === 'health' ? 'Data health' : view === 'query' ? 'Ask Your Pipeline' : 'AI Follow-up'
   useEffect(() => {
@@ -83,8 +86,9 @@ function App() {
           <div><h1 id="page-title">{viewTitle}</h1><p>{view === 'register' ? 'Corporate training opportunities, from first contact to close.' : view === 'health' ? 'Review data issues with evidence from the original records.' : view === 'query' ? 'Ask in your own words. Check the answer against its source.' : 'A thoughtful next message, grounded in your lead’s notes.'}</p></div>
           <div className="reference-date"><span>Follow-up reference date</span><strong><time dateTime={REFERENCE_DATE}>{formatDate(REFERENCE_DATE)}</time></strong></div>
         </section>
-        {!source.error && <div hidden={view !== 'followup'}><AiFollowUp leads={source.leads} issues={healthIssues} /></div>}
-        {!source.error && <div hidden={view !== 'query'}><AskPipeline /></div>}
+        <ReviewerAccess access={access} />
+        {!source.error && <div hidden={view !== 'followup'}><AiFollowUp key={`${access.generation}-${access.available}`} leads={source.leads} issues={healthIssues} available={access.available} onUnauthorized={access.invalidate} /></div>}
+        {!source.error && <div hidden={view !== 'query'}><AskPipeline key={`${access.generation}-${access.available}`} available={access.available} onUnauthorized={access.invalidate} /></div>}
         {source.error ? (
           <section className="error-state" role="alert"><h2>Lead data could not be loaded</h2><p>{source.error}</p><p>Check the bundled corporate-leads.csv against the original source, then reload.</p></section>
         ) : view === 'followup' || view === 'query' ? null : view === 'health' ? <DataHealth leads={source.leads} issues={healthIssues} /> : (

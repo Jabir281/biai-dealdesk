@@ -1,5 +1,14 @@
 # Decisions and Open Questions
 
+## Task 008 — Reviewer login, 2026-11-05
+
+- Add shared reviewer login with server-only `BIAI_REVIEWER_PASSWORD` and `BIAI_SESSION_SECRET`; weak/missing settings fail closed. Preserve trusted bearer support and actual-loopback development trust. No production unauthenticated fallback.
+- Use two-hour HMAC-SHA-256 sessions bound to the site origin, with a Secure, HttpOnly, SameSite=Strict, host-only cookie. Verify MAC with timing-safe comparison, exact payload shape and expiry. Either secret's rotation invalidates outstanding sessions. Enforce exact Origin/Host and Fetch Metadata checks for cookie-authenticated state changes.
+- Keep sessions stateless and lightweight: logout clears the current browser cookie, not a stolen copy elsewhere. Copies expire after two hours or secret rotation. Login/Gemini counters are per-instance only, not distributed abuse/spend controls. Shared reviewer identity is limited assessment access, not individual accounts.
+- Confirm session status before enabling both AI views. Keep register and Data Health public. Clear AI workspaces on logout/expiry, cancel pending client requests and notify other tabs without transmitting credentials. No password/key/token is bundled or stored in browser storage.
+- Preserve checkpoint 5055c0c, the manually corrected `vercel.json`, all 25 original records, existing Gemini payload/schema/executor behavior, and existing untracked reports/artifacts. No package installation, live Gemini call, deployment or commit. New browser screenshots are outside `reports/` in `artifacts/task-008/`.
+- Verification and deployment instructions: [Task 008 results](TASK-008-VERIFICATION.md), [Reviewer access](REVIEWER-ACCESS.md). Earlier dated statements that production browser access is disabled are superseded by this session flow.
+
 ## Ask Your Pipeline implementation — 2026-11-04
 
 - Gemini alone interprets free-form questions into an allowlisted plan. Runtime validation and deterministic TypeScript produce all results from the 25 source records and existing audit results. No keyword NLP, canned answers, fabricated fallback, generated SQL or arbitrary execution.

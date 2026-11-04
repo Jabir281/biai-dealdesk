@@ -16,7 +16,7 @@ This is a short **decision log**, not an AI brain dump. Record important choices
 
 ## Open questions
 - Data-correction UI and persistence approach.
-- True AI draft integration and cost/key model.
+- Production browser authentication and distributed AI rate limiting before public integration.
 - Natural-language question implementation and supported query scope.
 - Demo deployment location.
 
@@ -63,3 +63,104 @@ Verified source results:
 Scope limits: contact role, missing follow-up dates, general email validity/deliverability and arbitrary prose contradictions are not audited. Overdue dates remain operational flags in the register, not automatically data errors. All records, original IDs, values and dates remain unchanged.
 
 Validation: 18 passing Node tests (7 existing and 11 new), production build and lint. Playwright exercised every category, reset, all associated-record expansions, navigation and retained register filters at 1366×768 and 390×844. It confirmed 25 source records, 9 overdue, no tested layout overflow and no browser errors. Screenshots are in `reports/data-health-screenshots/`. The original CSV SHA-256 remains `E2528AA4CC87EB5B718FC532912DB8A0BDDC714A736F0C31A80FFACAF86A66E1`.
+
+## Server-side Gemini draft connection — 2026-11-03
+
+- User explicitly authorized sending one fictional sample lead to Gemini for a live smoke test. No frontend or email-sending capability was added. Existing register, audit, parser and source data were left unchanged.
+- Native fetch with the fixed `gemini-2.5-flash` generateContent endpoint. A shared Web handler is used by the Vercel Function and a loopback-only Vite middleware adapter. No SDK, dependencies, backend service or model/provider fallback was introduced.
+- Only `{leadId}` is accepted. The server loads the actual source CSV, selects nonempty company/contact-name/contact-role/stage/notes fields, and supplies them as untrusted data separate from trusted instructions. Recipient email/phone, dates, values and other records are not provided as context. Source fields in the response are selected by deterministic code.
+- `GEMINI_API_KEY` stays in the server environment; Vite loads it from ignored `.env.local` on server startup. No secret was printed or embedded in client code. Production additionally requires a separate 32–256 character `AI_DRAFT_ACCESS_TOKEN`; absence fails closed. Never expose that token in a browser bundle. Public UI integration still needs authenticated server-side access and shared/platform abuse protection.
+- Limits: 1024-byte input, 3-second body deadline, 4096-byte context, one candidate, thinking budget 0, 512 output tokens, 20-second provider deadline, 32-KiB provider body, subject ≤120 characters and body ≤1800 characters/160 words. One in-flight generation, 5 attempts/minute and 30/hour per instance. No automatic retry; these in-memory limits are not distributed or persistent across cold starts.
+- Errors use fixed safe messages. Provider response bodies, exception text, credentials and authorization headers are never logged or returned. Schema/size validation cannot prove factual grounding or guarantee resistance to prompt injection; all drafts require human review.
+- Server files and the Vercel entry are now included in the existing Node TypeScript project. No TypeScript checks were disabled. Function bundling explicitly includes the CSV; actual Vercel deployment has not been performed.
+
+Verification:
+
+- `npm.cmd test`: **30 passed** (12 mocked backend tests plus 18 existing data tests). No routine test uses Gemini quota. The HTTP adapter is exercised on a real loopback socket with a mocked provider.
+- `npm.cmd run build` and `npm.cmd run lint`: passed. Six built client files were checked against the local secret values and credential-variable names without printing those values; none were found.
+- Running Vite endpoint: GET → 405, invalid JSON shape → 400, unknown L99 → 404, all without provider calls.
+- Original and bundled CSV SHA-256 still match `E2528AA4CC87EB5B718FC532912DB8A0BDDC714A736F0C31A80FFACAF86A66E1`. `.env.local` is ignored.
+
+### Exactly one live smoke attempt
+
+Explicit command: `npm.cmd run smoke:ai`. Requested lead **L04**, model **gemini-2.5-flash**. The command used the same local HTTP adapter/core as Vite and made one provider request. Gemini returned **HTTP 404**; the endpoint returned **503 / MODEL_UNAVAILABLE** with the safe message “The requested Gemini model is unavailable. No alternative was selected.” Command exit code: 1. No retries and no alternative model/provider were used.
+
+The selected source context was Karnaphuli Foods, Tanvir Hasan, Training Manager, Contacted, with notes: “Interested in sales team AI training. Did not reply to last two messages.” **No live draft was returned, so real output grounding could not be verified.** Mocked responses are not evidence of live model availability or quality.
+
+Status: request/response contract and local backend are ready for frontend development against mocks, but live drafting is blocked by model availability/access for this request. Resolving the model/access issue and authorizing a new live test is the next step; public deployment also requires the documented protection work. See [AI-BACKEND.md](AI-BACKEND.md).
+
+## Gemini model-access debugging — 2026-11-04
+
+The user authorized one read-only model listing and, conditional on a supported free-tier-compatible model, one new L04 generation. Existing uncommitted work was preserved. No frontend, source CSV, dependencies, build configuration, billing settings or deployment were changed.
+
+### Diagnosis and model selection
+
+- The old request used `POST https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent`, with the key in `x-goog-api-key`. This matches the [official generateContent API](https://aistudio.google.com/api-reference/generate-content). No incorrect method, API version or path construction was found.
+- Google's [2.5 Flash page](https://aistudio.google.com/docs/models/gemini-2.5-flash) documents restricted/deprecated access. This is consistent with the previous generation's 404, but is not a proven account-specific explanation. The model still appeared in the catalog below. The original raw error was intentionally not retained; its exact provider-side cause cannot be established from the safe 503 alone.
+- Exactly one `GET https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000` returned HTTP 200, with no next page. It used the existing key in a header; only status, validated model names and pagination presence were printed. No generation, retries or additional model lookups occurred in that diagnostic request. The [Models API](https://aistudio.google.com/api-reference/models/list-models) reports capabilities, not project billing tier or remaining generation quota.
+- Selected `gemini-3.5-flash-lite`, the user's preferred model, advertised with `generateContent`. Google's [pricing table](https://aistudio.google.com/docs/pricing#gemini-3.5-flash-lite) documents free standard text input/output. No billing was enabled; the account's actual billing tier was not independently verified.
+
+Full returned inventory filtered to `generateContent` (catalog visibility is not a claim that every model was tested or is suitable for email drafting):
+
+```text
+gemini-2.5-flash
+gemini-2.5-pro
+gemini-2.5-flash-preview-tts
+gemini-2.5-pro-preview-tts
+gemma-4-26b-a4b-it
+gemma-4-31b-it
+gemini-flash-latest
+gemini-flash-lite-latest
+gemini-pro-latest
+gemini-2.5-flash-lite
+gemini-2.5-flash-image
+gemini-3-flash-preview
+gemini-3.1-pro-preview
+gemini-3.1-pro-preview-customtools
+gemini-3.1-flash-lite-preview
+gemini-3.1-flash-lite
+gemini-3-pro-image-preview
+gemini-3-pro-image
+nano-banana-pro-preview
+gemini-3.1-flash-image-preview
+gemini-3.1-flash-image
+gemini-3.1-flash-lite-image
+gemini-nano-banana-2.1
+gemini-3.5-flash
+gemini-3.5-flash-lite
+gemini-omni-flash-preview
+gemini-omni-1.1-flash
+gemini-3.5-transcribe
+gemini-3.6-flash
+gemini-3.7-flash
+gemini-3.8-flash
+gemini-4-argon
+lyria-3-clip-preview
+lyria-3-pro-preview
+lyria-3.5
+gemini-3.1-flash-tts-preview
+gemini-3.8-flash-tts
+gemini-3.8-flash-lite-tts
+gemini-robotics-er-2-preview
+gemini-2.5-computer-use-preview-10-2025
+antigravity-preview-05-2026
+antigravity-preview-09-2026
+antigravity-preview-latest
+deep-research-max-preview-04-2026
+deep-research-preview-04-2026
+deep-research-pro-preview-12-2025
+```
+
+### Minimal backend changes
+
+`GEMINI_MODEL` is server-only and defaults to `gemini-3.5-flash-lite` when omitted. Vite, Vercel and the manual smoke script pass the setting to the same handler. Supported profiles are the new default and an explicit `gemini-2.5-flash` override; unknown/blank settings fail closed before spending quota. The 3.5 profile uses minimal thinking and omits deprecated sampling parameters. The original 2.5 profile retains its previous settings. Returned model identity is checked against the selection (numbered revisions accepted); no fallback occurs. Provider HTTP 400 is separately mapped to safe `502 PROVIDER_REQUEST_REJECTED`; 404 remains `503 MODEL_UNAVAILABLE`. The email request/response shape and source selection remain unchanged.
+
+### Executed verification and blocker
+
+- `npm.cmd test`: **33 passed**, including all 18 existing data tests and 15 mocked backend tests. Configuration tests cover defaults, overrides, matching request profiles, rejected settings/URL injection, model mismatch, caller-supplied model rejection, and safe 400/401/403/404/429/5xx handling without retries.
+- `npm.cmd run build`: passed with TypeScript validation. `npm.cmd run lint`: passed.
+- Exactly one `npm.cmd run smoke:ai` selected **gemini-3.5-flash-lite**, posted **L04** and exited **1**. Endpoint result: **HTTP 502 / PROVIDER_FAILURE**. No retry, fallback or second generation was made.
+- No subject/body response was returned. L04's source notes remain: “Interested in sales team AI training. Did not reply to last two messages.” Live grounding could not be checked. Mocked success does not establish real generation success.
+- The new failure is a different safe error from the previous model 404. It may represent an otherwise unmapped provider status or a transport exception; the handler intentionally suppresses raw details, so neither a specific provider status nor a resolved model-access problem is claimed.
+
+Live drafting remains blocked. Further diagnosis would need a separately authorized attempt with narrowly scoped, secret-safe status diagnostics or a review of Google project access/quota. Existing production authentication and distributed rate-limit limitations still apply. Stop here without additional live requests.

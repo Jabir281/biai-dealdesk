@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test tests/*.test.mjs",
+    "smoke:ai": "node scripts/smoke-draft.mjs --live-once"
   },
   "dependencies": {
     "@types/node": "^24.19.2",

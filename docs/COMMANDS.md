@@ -46,6 +46,13 @@ Data Health verification on 2026-11-03: all 18 tests passed (7 existing, 11 new)
 
 Verified on 2026-11-03 with Node 22.18.0: 7 passing tests, including the exact source and overdue IDs, CSV quoting/empty fields, duplicate retention and combined filters. `npm.cmd run build` and `npm.cmd run lint` also pass after removal of the unused generated JSX `.js` files.
 
+## AI backend
+
+`npm.cmd test` runs all mocked backend and existing data tests without provider quota.
+`npm.cmd run dev` serves `/api/ai/draft` through the same handler used by the Vercel Function.
+`npm.cmd run smoke:ai` explicitly initiates one real L04 request; do not include it in routine validation or retries.
+See [AI-BACKEND.md](AI-BACKEND.md) for request format, configuration, limits and deployment protection.
+
 ## Git checks (only if a Git repository has been initialized)
 ```powershell
 git status --short

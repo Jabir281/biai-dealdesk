@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/ai/draft.ts": {
+      "maxDuration": 30,
+      "includeFiles": "src/data/corporate-leads.csv"
+    }
+  }
+}

@@ -1,5 +1,14 @@
 # Decisions and Open Questions
 
+## Ask Your Pipeline implementation — 2026-11-04
+
+- Gemini alone interprets free-form questions into an allowlisted plan. Runtime validation and deterministic TypeScript produce all results from the 25 source records and existing audit results. No keyword NLP, canned answers, fabricated fallback, generated SQL or arbitrary execution.
+- Added list/count/sum/group operations, bounded AND/OR filters, typed comparisons and sorting. Criteria, source IDs, fixed-date rules and duplicate/value warnings accompany results. Unsupported or ambiguous requests return honest limitations. Each question is independent.
+- Reused server-only model configuration, native fetch and fail-closed authorization. Local Vite and Vercel use the same core query handler. Production Ask remains disabled pending secure browser authentication; per-instance endpoint limits are not distributed spending caps.
+- Verification: 62 automated tests, build and lint passed. Playwright MCP passed 36 query checks, 61 existing-feature regression checks and production restrictions at 1366×768 and 390×844, all without live provider calls. Original/copy CSV hashes remain unchanged; client bundle secret check passed.
+- Exactly one authorized live query used `gemini-3.5-flash-lite` and failed with upstream HTTP 400, mapped to `502 PROVIDER_REQUEST_REJECTED`. No plan/answer was returned or retried. The independent expected answer was 9 IDs (L04, L06, L10, L13, L15, L19, L20, L22, L25). The precise rejected configuration is unknown because raw diagnostics were not retained. Live interpretation remains blocked; further live diagnosis requires separate authorization.
+- No dependencies, deployments, source-data edits, authentication weakening or Git commits. Details: [architecture](AI-QUERY.md), [verification and screenshots](../reports/query-verification.md).
+
 This is a short **decision log**, not an AI brain dump. Record important choices and why we made them. A documented decision should be testable or defensible in the BIAI interview.
 
 ## Confirmed

@@ -4,6 +4,10 @@
     "api/ai/draft.ts": {
       "maxDuration": 30,
       "includeFiles": "src/data/corporate-leads.csv"
+    },
+    "api/ai/query.ts": {
+      "maxDuration": 30,
+      "includeFiles": "src/data/corporate-leads.csv"
     }
   }
 }

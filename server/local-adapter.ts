@@ -2,9 +2,9 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { Readable } from 'node:stream'
 import { jsonResponse } from './draft.ts'
 
-export function createLocalMiddleware(handler: (request: Request) => Promise<Response>) {
+export function createLocalMiddleware(handler: (request: Request) => Promise<Response>, pathname: '/api/ai/draft' | '/api/ai/query' = '/api/ai/draft') {
   return async (req: IncomingMessage, res: ServerResponse, next: () => void) => {
-    if ((req.url ?? '').split('?')[0] !== '/api/ai/draft') return next()
+    if ((req.url ?? '').split('?')[0] !== pathname) return next()
     const controller = new AbortController()
     const onClose = () => { if (!res.writableEnded) controller.abort() }
     res.on('close', onClose)

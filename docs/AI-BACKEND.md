@@ -1,5 +1,11 @@
 # Gemini draft backend
 
+## Ask Your Pipeline addition — 2026-11-04
+
+The separate `/api/ai/query` route reuses model configuration, safe response helpers, authorization and the local adapter. Email generation behavior is unchanged. See [AI-QUERY.md](AI-QUERY.md) for the typed query plan, deterministic executor, limits and access requirements. Production query access uses the same server-held `AI_DRAFT_ACCESS_TOKEN`; the browser never receives it and production Ask remains disabled.
+
+The single live query attempt returned provider HTTP 400, safely mapped to `502 PROVIDER_REQUEST_REJECTED`. No retry occurred, and live query interpretation remains unverified. This result does not re-test or establish the current live status of email generation. See [query verification](../reports/query-verification.md).
+
 ## Architecture
 
 - `server/draft.ts`: one typed Web Request/Response handler for validation, authentication, source lookup, spend limits, prompt construction, native fetch, response validation and safe errors.

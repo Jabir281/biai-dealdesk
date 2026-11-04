@@ -43,7 +43,7 @@ interface DraftOptions {
   bodyTimeoutMs?: number
 }
 
-class SafeError extends Error {
+export class SafeError extends Error {
   readonly status: number
   readonly code: string
   constructor(status: number, code: string, message: string) {
@@ -60,11 +60,11 @@ export function jsonResponse(status: number, data: unknown, headers: Record<stri
   } })
 }
 
-function errorResponse(status: number, code: string, message: string, headers: Record<string, string> = {}) {
+export function errorResponse(status: number, code: string, message: string, headers: Record<string, string> = {}) {
   return jsonResponse(status, { error: { code, message } }, headers)
 }
 
-async function boundedText(body: ReadableStream<Uint8Array> | null, limit: number, signal: AbortSignal): Promise<string> {
+export async function boundedText(body: ReadableStream<Uint8Array> | null, limit: number, signal: AbortSignal): Promise<string> {
   if (!body) return ''
   const reader = body.getReader()
   const chunks: Uint8Array[] = []
@@ -101,7 +101,7 @@ function hasControlCharacters(text: string, multiline: boolean): boolean {
   })
 }
 
-function authorize(request: Request, options: DraftOptions): Response | undefined {
+export function authorize(request: Request, options: DraftOptions): Response | undefined {
   if (options.local) {
     const url = new URL(request.url)
     const origin = request.headers.get('origin')

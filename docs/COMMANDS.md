@@ -48,6 +48,12 @@ Verified on 2026-11-03 with Node 22.18.0: 7 passing tests, including the exact s
 
 ## AI backend
 
+Ask Your Pipeline uses the same development server at `/api/ai/query`. Routine validation remains `npm.cmd test`, `npm.cmd run build`, and `npm.cmd run lint` (no API quota). See [AI-QUERY.md](AI-QUERY.md).
+
+For query browser checks, run `node tests/browser/query-fixtures.mjs`, then Playwright MCP `browser_run_code_unsafe` with `filename: "D:/BIAI/app/reports/query-browser-run.js"`. This generated script intercepts all AI requests. Production checks use `tests/browser/query-production.playwright.js` against a built preview at port 5174. Close the test browser to discard routes and stop the temporary preview afterwards.
+
+`npm.cmd run smoke:query` makes one real interpretation request. It is opt-in, never part of routine tests, and must not be retried automatically. The authorized attempt on 2026-11-04 failed with `PROVIDER_REQUEST_REJECTED`; do not rerun without separately authorized live diagnosis. See [query verification](../reports/query-verification.md).
+
 `npm.cmd test` runs all mocked backend and existing data tests without provider quota.
 `npm.cmd run dev` serves `/api/ai/draft` through the same handler used by the Vercel Function.
 `npm.cmd run smoke:ai` explicitly initiates one real L04 request; do not include it in routine validation or retries.

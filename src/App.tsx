@@ -5,6 +5,7 @@ import type { Lead, Stage } from './data/leads'
 import { auditLeads } from './data/health'
 import DataHealth from './DataHealth'
 import AiFollowUp from './AiFollowUp'
+import AskPipeline from './AskPipeline'
 import './App.css'
 
 function loadSource(): { leads: Lead[]; error: string | null } {
@@ -52,8 +53,8 @@ function LeadRow({ lead }: { lead: Lead }) {
 }
 
 function App() {
-  const [view, setView] = useState<'register' | 'health' | 'followup'>('register')
-  const viewTitle = view === 'register' ? 'Lead register' : view === 'health' ? 'Data health' : 'AI Follow-up'
+  const [view, setView] = useState<'register' | 'health' | 'followup' | 'query'>('register')
+  const viewTitle = view === 'register' ? 'Lead register' : view === 'health' ? 'Data health' : view === 'query' ? 'Ask Your Pipeline' : 'AI Follow-up'
   useEffect(() => {
     document.title = `${viewTitle} | BIAI DealDesk`
   }, [viewTitle])
@@ -76,15 +77,17 @@ function App() {
           <button type="button" aria-current={view === 'register' ? 'page' : undefined} onClick={() => setView('register')}>Lead register</button>
           <button type="button" aria-current={view === 'health' ? 'page' : undefined} onClick={() => setView('health')}>Data health</button>
           <button type="button" aria-current={view === 'followup' ? 'page' : undefined} onClick={() => setView('followup')}>AI Follow-up</button>
+          <button type="button" aria-current={view === 'query' ? 'page' : undefined} onClick={() => setView('query')}>Ask Your Pipeline</button>
         </nav>
         <section className="page-heading" aria-labelledby="page-title">
-          <div><h1 id="page-title">{viewTitle}</h1><p>{view === 'register' ? 'Corporate training opportunities, from first contact to close.' : view === 'health' ? 'Review data issues with evidence from the original records.' : 'A thoughtful next message, grounded in your lead’s notes.'}</p></div>
+          <div><h1 id="page-title">{viewTitle}</h1><p>{view === 'register' ? 'Corporate training opportunities, from first contact to close.' : view === 'health' ? 'Review data issues with evidence from the original records.' : view === 'query' ? 'Ask in your own words. Check the answer against its source.' : 'A thoughtful next message, grounded in your lead’s notes.'}</p></div>
           <div className="reference-date"><span>Follow-up reference date</span><strong><time dateTime={REFERENCE_DATE}>{formatDate(REFERENCE_DATE)}</time></strong></div>
         </section>
         {!source.error && <div hidden={view !== 'followup'}><AiFollowUp leads={source.leads} issues={healthIssues} /></div>}
+        {!source.error && <div hidden={view !== 'query'}><AskPipeline /></div>}
         {source.error ? (
           <section className="error-state" role="alert"><h2>Lead data could not be loaded</h2><p>{source.error}</p><p>Check the bundled corporate-leads.csv against the original source, then reload.</p></section>
-        ) : view === 'followup' ? null : view === 'health' ? <DataHealth leads={source.leads} issues={healthIssues} /> : (
+        ) : view === 'followup' || view === 'query' ? null : view === 'health' ? <DataHealth leads={source.leads} issues={healthIssues} /> : (
           <>
             <div className="register-summary">
               <p><strong>{source.leads.length}</strong> source leads <span className="summary-divider" aria-hidden="true" /> <strong className="overdue-total">{overdueCount}</strong> overdue follow-ups</p>

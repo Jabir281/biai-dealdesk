@@ -73,7 +73,7 @@ function App() {
       <a className="skip-link" href="#register">Skip to {viewTitle}</a>
       <header className="app-header"><div className="header-inner">
         <div className="brand"><span className="brand-mark">BIAI</span><span>DealDesk</span></div>
-        <span className="sample-label"><span aria-hidden="true" />Fictional sample data</span>
+
       </div></header>
       <main id="register">
         <nav className="view-nav" aria-label="Main navigation">
@@ -118,7 +118,7 @@ function App() {
                 <div className="empty-state"><h2>No leads match these filters</h2><p>Try a different company or contact, or clear the filters to see all source leads.</p><button type="button" onClick={clearFilters}>Clear filters</button></div>
               )}
             </section>
-            <footer className="register-footer"><p>Overdue means a follow-up before 1 November 2026. Dates on that day are not overdue.</p><p>Source: corporate-leads.csv. Values shown as “Not agreed” are zero or empty.</p></footer>
+            
           </>
         )}
       </main>

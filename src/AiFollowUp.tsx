@@ -92,7 +92,6 @@ export default function AiFollowUp({ leads, issues, available, onUnauthorized }:
           </> : <p className="followup-context-empty">Choose one of the 25 source records to review its contact, stage and notes. Duplicate records keep their original IDs.</p>}
           <div className="followup-generate">
             {confirmReplace ? <div className="followup-replace" role="group" aria-label="Confirm draft replacement"><p>A new draft will replace this lead’s current draft and edits only if generation succeeds.</p><button type="button" onClick={() => void generate()}>Generate replacement</button><button className="followup-secondary" type="button" onClick={() => setConfirmReplace(false)}>Keep current draft</button></div> : <button type="button" disabled={!lead || pending || !available} onClick={() => void generate()}>{pending ? 'Generating draft…' : 'Generate Draft'}</button>}
-            <p>Uses this lead’s company, contact name and role, stage, and notes. Generating a draft uses AI quota.</p>
           </div>
         </section>
         <section className="followup-editor" aria-labelledby="draft-heading" aria-busy={pending}>
@@ -112,7 +111,6 @@ export default function AiFollowUp({ leads, issues, available, onUnauthorized }:
           </> : <div className="followup-empty"><svg width="42" height="42" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true"><rect x="5" y="3" width="22" height="26" rx="2" /><path d="M10 10h12M10 16h12M10 22h8" /></svg><h3>{pending ? 'Preparing your follow-up' : 'Your draft starts with the lead'}</h3><p>{pending ? 'The original record is being used to draft a short English follow-up.' : 'Select a lead and choose Generate Draft. A successful response will appear here for review, editing and copying.'}</p></div>}
         </section>
       </div>
-      <p className="followup-footnote">Drafts and edits stay in this tab while you work. Reloading clears them. Original lead records are never changed.</p>
     </div>
   )
 }

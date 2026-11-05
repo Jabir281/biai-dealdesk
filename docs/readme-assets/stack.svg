@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="450" height="26" viewBox="0 0 450 26" role="img" aria-labelledby="title">
+  <title id="title">React 19, TypeScript 6, Vite 8, Gemini and Vercel</title>
+  <g fill="#17324d">
+    <rect width="81" height="26" rx="4"/>
+    <rect x="89" width="107" height="26" rx="4"/>
+    <rect x="204" width="65" height="26" rx="4"/>
+    <rect x="277" width="79" height="26" rx="4" fill="#126c67"/>
+    <rect x="364" width="77" height="26" rx="4"/>
+  </g>
+  <g fill="#ffffff" font-family="Segoe UI,Arial,sans-serif" font-size="12" text-anchor="middle">
+    <text x="40.5" y="17">React 19</text>
+    <text x="142.5" y="17">TypeScript 6</text>
+    <text x="236.5" y="17">Vite 8</text>
+    <text x="316.5" y="17">Gemini</text>
+    <text x="402.5" y="17">Vercel</text>
+  </g>
+</svg>

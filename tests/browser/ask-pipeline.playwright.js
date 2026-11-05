@@ -23,10 +23,10 @@ async (page) => {
   try {
     await page.setViewportSize({ width: 1366, height: 768 })
     await page.goto('http://localhost:5173/')
-    await page.getByRole('button', { name: 'Ask Your Pipeline', exact: true }).click()
+    await page.getByRole('button', { name: 'Q&A', exact: true }).click()
     const input = page.getByLabel('Your question', { exact: true })
     const ask = page.getByRole('button', { name: 'Ask', exact: true })
-    check(await page.title() === 'Ask Your Pipeline | BIAI DealDesk', 'Navigation and title identify Ask Your Pipeline')
+    check(await page.title() === 'Q&A | BIAI DealDesk', 'Navigation and title identify Q&A')
     check(await ask.isDisabled(), 'Empty question cannot submit')
     check(requests.length === 0, 'Opening the view makes no AI request')
     await shot('desktop-empty')

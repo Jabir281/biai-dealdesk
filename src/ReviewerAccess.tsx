@@ -10,7 +10,7 @@ export default function ReviewerAccess({ access }: { access: ReturnType<typeof u
   return <section className="reviewer-access" aria-label="Reviewer access">
     <div className="reviewer-bar">
       <div><strong>{access.pending ? 'Checking reviewer access…' : access.session?.authenticated ? 'Reviewer signed in' : local ? 'Local development access' : 'Reviewer access'}</strong>
-        <p>{access.session?.authenticated ? 'AI Follow-up and Ask Your Pipeline are unlocked for this session.' : local ? 'AI features are available on this computer.' : 'Sign in to use both AI features. The lead register and Data Health remain open.'}</p></div>
+        <p>{access.session?.authenticated ? 'AI Follow-up and Q&A are unlocked for this session.' : local ? 'AI features are available on this computer.' : 'Sign in to use both AI features. The lead register and Data Health remain open.'}</p></div>
       {access.session?.authenticated || access.logoutFailed ? <button type="button" className="reviewer-secondary" disabled={access.pending} onClick={() => { setPassword(''); void access.logout() }}>{access.logoutFailed ? 'Retry sign-out' : 'Sign out'}</button> : !local && <button type="button" disabled={access.pending} aria-expanded={open} aria-controls="reviewer-login" onClick={() => { setOpen(value => !value); setPassword(''); requestAnimationFrame(() => field.current?.focus()) }}>{open ? 'Close sign-in' : 'Reviewer sign in'}</button>}
     </div>
     {!access.session?.authenticated && !local && open && <form id="reviewer-login" className="reviewer-form" onSubmit={event => { event.preventDefault(); const submitted = password; setPassword(''); void access.login(submitted) }}>

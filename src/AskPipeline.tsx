@@ -57,7 +57,7 @@ export default function AskPipeline({ available, onUnauthorized }: { available: 
 
   return <div className="query-view">
     <p className="query-method">Gemini interprets your question. TypeScript calculates the answer from the 25 original leads and their Data Health results.</p>
-    {!available && <div className="query-warning" role="note"><strong>Sign in to ask your pipeline.</strong><p>Use Reviewer access above to unlock questions and AI Follow-up.</p></div>}
+    {!available && <div className="query-warning" role="note"><strong>Sign in to use Q&A.</strong><p>Use Reviewer access above to unlock questions and AI Follow-up.</p></div>}
     <form className="query-form" onSubmit={event => { event.preventDefault(); void ask() }} aria-label="Ask about the pipeline">
       <label htmlFor="pipeline-question">Your question</label>
       <textarea ref={input} id="pipeline-question" rows={3} maxLength={800} value={question} disabled={pending} placeholder="Ask about leads, follow-ups, stages, values or data issues…" onChange={event => setQuestion(event.target.value)} aria-describedby="question-help question-length" />

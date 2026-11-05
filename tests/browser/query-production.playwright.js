@@ -5,7 +5,7 @@ async (page) => {
   for (const [width, height] of [[1366, 768], [390, 844]]) {
     await page.setViewportSize({ width, height })
     await page.goto('http://127.0.0.1:5174/')
-    await page.getByRole('button', { name: 'Ask Your Pipeline', exact: true }).click()
+    await page.getByRole('button', { name: 'Q&A', exact: true }).click()
     await page.getByLabel('Your question', { exact: true }).fill('Count the overdue leads')
     if (!(await page.getByRole('button', { name: 'Ask', exact: true }).isDisabled())) throw new Error('Production Ask must be disabled')
     if (!(await page.locator('.query-warning').innerText()).includes('Secure browser access')) throw new Error('Access explanation missing')

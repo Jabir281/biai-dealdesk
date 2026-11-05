@@ -57,7 +57,7 @@ function LeadRow({ lead }: { lead: Lead }) {
 function App() {
   const access = useReviewerSession()
   const [view, setView] = useState<'register' | 'health' | 'followup' | 'query'>('register')
-  const viewTitle = view === 'register' ? 'Lead register' : view === 'health' ? 'Data health' : view === 'query' ? 'Ask Your Pipeline' : 'AI Follow-up'
+  const viewTitle = view === 'register' ? 'Lead register' : view === 'health' ? 'Data health' : view === 'query' ? 'Q&A' : 'AI Follow-up'
   useEffect(() => {
     document.title = `${viewTitle} | BIAI DealDesk`
   }, [viewTitle])
@@ -80,10 +80,10 @@ function App() {
           <button type="button" aria-current={view === 'register' ? 'page' : undefined} onClick={() => setView('register')}>Lead register</button>
           <button type="button" aria-current={view === 'health' ? 'page' : undefined} onClick={() => setView('health')}>Data health</button>
           <button type="button" aria-current={view === 'followup' ? 'page' : undefined} onClick={() => setView('followup')}>AI Follow-up</button>
-          <button type="button" aria-current={view === 'query' ? 'page' : undefined} onClick={() => setView('query')}>Ask Your Pipeline</button>
+          <button type="button" aria-current={view === 'query' ? 'page' : undefined} onClick={() => setView('query')}>Q&A</button>
         </nav>
         <section className="page-heading" aria-labelledby="page-title">
-          <div><h1 id="page-title">{viewTitle}</h1><p>{view === 'register' ? 'Corporate training opportunities, from first contact to close.' : view === 'health' ? 'Review data issues with evidence from the original records.' : view === 'query' ? 'Ask in your own words. Check the answer against its source.' : 'A thoughtful next message, grounded in your lead’s notes.'}</p></div>
+          <div><h1 id="page-title">{viewTitle}</h1><p>{view === 'register' ? 'Corporate training opportunities, from first contact to close.' : view === 'health' ? 'Review data issues with evidence from the original records.' : view === 'query' ? 'Ask AI questions about your corporate leads.' : 'A thoughtful next message, grounded in your lead’s notes.'}</p></div>
           <div className="reference-date"><span>Follow-up reference date</span><strong><time dateTime={REFERENCE_DATE}>{formatDate(REFERENCE_DATE)}</time></strong></div>
         </section>
         <ReviewerAccess access={access} />
